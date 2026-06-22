@@ -138,6 +138,38 @@ class Bomb:
             self.vy *= -1
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
+    
+class Beam:
+    """
+    ビームに関するクラス
+    """
+
+    def __init__(self, bird: Bird):
+        """
+        ビーム画像を読み込み、こうかとんの右側に配置する
+        bird: ビームを発射するこうかとん
+        """
+        self.img = pg.image.load("fig/beam.png")
+        self.rct = self.img.get_rect()
+
+        # ビームの左端が、こうかとんの右端に来るように配置
+        self.rct.left = bird.rct.right
+        self.rct.centery = bird.rct.centery
+
+        # ビームの速度：右方向に5、縦方向に0
+        self.vx = 5
+        self.vy = 0
+
+    def update(self, screen: pg.Surface):
+        """
+        ビームを移動させ、画面に描画する
+        screen: ゲーム画面
+        """
+        if check_bound(self.rct) != (1, 1):
+            return
+
+        self.rct.move_ip(self.vx, self.vy)
+        screen.blit(self.img, self.rct)
 
 
 def main():
@@ -166,9 +198,17 @@ def main():
             return
 
         key_lst = pg.key.get_pressed()
+
+        if key_lst[pg.K_SPACE]:
+            beam = Beam(bird)
+
         bird.update(key_lst, screen)
         # beam.update(screen)   
         bomb.update(screen)
+
+        if beam is not None:
+            beam.update(screen)
+            
         pg.display.update()
         tmr += 1
         clock.tick(50)
